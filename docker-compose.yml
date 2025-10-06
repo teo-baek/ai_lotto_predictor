@@ -1,0 +1,37 @@
+services:
+  lotto-db:
+    image: postgres:15
+    container_name: lotto-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lotto_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - lotto_data:/var/lib/postgresql/data
+
+  lotto-backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: lotto-backend
+    depends_on:
+      - lotto-db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@lotto-db:5432/lotto_db
+    ports:
+      - "8000:8000"
+
+  lotto-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lotto-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - lotto-backend
+
+volumes:
+  lotto_data:
